@@ -27,23 +27,23 @@ app.get("/", function(req, res){
 })
 
 app.get("/consulta", function(req, res){
-    res.render("consultar")
-    const agendamentos1 = db.collection('agendamentos')
-    const todosAgendamentos = agendamentos1.get()
-    todosAgendamentos.forEach(doc=>{
-        console.log(doc.id, '=>', doc.data())
+    res.render("consulta")
     })
     
-})
 
 app.get("/editar/:id", function(req, res){
 })
 
 app.get("/excluir/:id", function(req, res){
+    var resultDelete = db.collection('agendamentos').doc('teste').delete()
+    .then(function(){
+        console.log('excluido com sucesso')
+        res.redirect('/')
+    })
 })
 
 app.post("/cadastrar", function(req, res){
-    var result = db.collection('agendamentos').add({
+    var result = db.collection('agendamentos').doc('teste').add({
         nome: req.body.nome,
         telefone: req.body.telefone,
         origem: req.body.origem,
@@ -56,6 +56,17 @@ app.post("/cadastrar", function(req, res){
 })
 
 app.post("/atualizar", function(req, res){
+    var resultUpdate = db.collection('agendamentos').doc('teste').update({
+        nome: req.body.nome,
+        telefone: req.body.telefone,
+        origem: req.body.origem,
+        data_contato: req.body.data_contato,
+        observacao: req.body.observacao
+    }).then(function(){
+        console.log('Documento atualizado');
+        res.redirect('/')
+    })
+
 })
 
 app.listen(8081, function(){
