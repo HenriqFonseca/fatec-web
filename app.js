@@ -1,48 +1,63 @@
-const bodyParser = require("body-parser")
 const express = require("express")
 const app = express()
-const post = require("./model/post")
-const handlebars = require('express-handlebars').engine;
+const handlebars = require("express-handlebars").engine
+const bodyParser = require("body-parser")
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app')
+const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore')
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./projetonodejs-16161-firebase-adminsdk-uffxm-050ae7210c.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+
+const db = getFirestore()
 
 app.engine("handlebars", handlebars({defaultLayout: "main"}))
-app.set("view engine", "handlebars");
-
-
-
-app.listen(8081, () => {
-    console.log("http://localhost:8081");
-})
+app.set("view engine", "handlebars")
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-app.get("/", (req, res) => {
+app.get("/", function(req, res){
     res.render("primeira_pagina")
 })
 
+app.get("/consulta", function(req, res){
+    res.render("consultar")
+    const agendamentos1 = db.collection('agendamentos')
+    const todosAgendamentos = agendamentos1.get()
+    todosAgendamentos.forEach(doc=>{
+        console.log(doc.id, '=>', doc.data())
+    })
+    
+})
 
-app.post("/cadastrar",function(req,res){
-    post.create({
+app.get("/editar/:id", function(req, res){
+})
+
+app.get("/excluir/:id", function(req, res){
+})
+
+app.post("/cadastrar", function(req, res){
+    var result = db.collection('agendamentos').add({
         nome: req.body.nome,
-        celular: req.body.celular,
         telefone: req.body.telefone,
         origem: req.body.origem,
         data_contato: req.body.data_contato,
         observacao: req.body.observacao
     }).then(function(){
-        console.log("dados cadastrados daquele jeito")
-    }).catch(function(erro){
-        console.log("erro ao cadastrar" + erro)
+        console.log('Added document');
+        res.redirect('/')
     })
 })
 
-// passando parametros
-app.get("/produtos/:item/:quantidade", function(req,res){
-    res.send("Item:" + req.params.item+"<br>Quantidade: " +req.params.quantidade)
+app.post("/atualizar", function(req, res){
 })
 
-
-app.get("/contato", function(req,res){
-    res.send("contatino")
+app.listen(8081, function(){
+    console.log("Servidor ativo!")
 })
-
